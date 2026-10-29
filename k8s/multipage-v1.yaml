@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multipage-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multipage-v1
+  template:
+    metadata:
+      labels:
+        app: multipage-v1
+    spec:
+      containers:
+        - name: app
+          image: sidaksingh1/multipage-app:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 2
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multipage-v1-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: multipage-v1
+  ports:
+    - port: 8084
+      targetPort: 5000
+
